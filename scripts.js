@@ -1,30 +1,10 @@
 $(function() {
 
-  $.ajax({
-    url: 'https://home.plutoratest.com/api/authentication/auth/refresh',
-    type: 'post',
-    data: {
-      "Domain": "home",
-      "RefreshToken": "hAtQb7vG4yaTiyXgDX/+G9PuVs4ov1AZ4GfNXP06FEa8s1IviHNkU/WB7rxNyQdK0VcG8abg2c4FRQmwePGHVw=="
-    }, 
-    headers: {
-      "Access-Control-Allow-Origin": "*"
-    },
-    // dataType: 'json',
-    success: function (data) {
-      debugger
-      console.info(data);
-    }
+  fetch("http://localhost:3001/releases")
+  .then(res => {
+    res
+    debugger;
   });
-
-  // $.post("https://home.plutoratest.com/api/authentication/auth/refresh", 
-  //   {
-  //     "Domain": "home",
-  //     "RefreshToken": "hAtQb7vG4yaTiyXgDX/+G9PuVs4ov1AZ4GfNXP06FEa8s1IviHNkU/WB7rxNyQdK0VcG8abg2c4FRQmwePGHVw=="
-  //   }, 
-  // function(data) {
-  //   debugger;
-  // });
 
   $('#burndown').highcharts({
     title: {
