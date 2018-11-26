@@ -26,10 +26,10 @@ router.get('/defects/:releaseId', (req, res, next) => {
         "DataGridName":"Defect"
     })
     .then(result => {
-        res.send(200, result.data.Data);
+        res.status(200).send(result.data.Data)
     })
     .catch(err => {
-        res.send(500);
+        res.status(500);
         console.error(err);
     });
 })

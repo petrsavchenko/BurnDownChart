@@ -1,9 +1,39 @@
 $(function() {
 
-  fetch("http://localhost:3001/releases")
-  .then(res => {
-    res
-    debugger;
+  // fetch('/releases')
+  // .then(res => res.json())
+  // .then(data => {
+  //   //debugger;
+  // });
+
+  var releaseId = 'bb3a8e0b-c2b0-44e6-ab91-360dab82eb58';
+
+  fetch(`/defects/${releaseId}`)
+  .then(res => res.json())
+  .then(data => {
+    const estimatedItems = data.ResultSet
+      .filter(item => item.Status && item.Status.Value === "Submitted" 
+        && parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
+      .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
+
+    const estimatedItemsTotal = estimatedItems
+      .reduce((sum, item) => sum + item);
+
+
+    const average = Math.round(estimatedItemsTotal/14);
+
+    const getIdealBurnData = (average, estimatedItemsTotal) => {
+      const idealBurnData = [];
+      while(estimatedItemsTotal > average){
+        estimatedItemsTotal-=average;
+        idealBurnData.push(average);
+      }
+      if(estimatedItemsTotal > 0) {
+        idealBurnData.push(estimatedItemsTotal);
+      }
+      return idealBurnData;
+    }  
+    const idealBurnData = getIdealBurnData(average, estimatedItemsTotal);
   });
 
   $('#burndown').highcharts({

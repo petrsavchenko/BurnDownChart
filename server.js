@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 
 /**
  * Config
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+
 
 app.use(morgan(`API Request (port ${port}): :method :url :status :response-time ms - :res[content-length]`));
 
@@ -35,6 +37,14 @@ axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
 
 app.use(require('./routes/defects'));
 app.use(require('./routes/releases'));
+
+app.use(express.static(path.join(__dirname, 'client')));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname + '/client/index.html'));
+// });
 
 // app.get('/status', (req, res) => {
 //   axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
