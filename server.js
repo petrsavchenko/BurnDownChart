@@ -36,7 +36,7 @@ axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
 
 
 app.use(require('./routes/defects'));
-app.use(require('./routes/releases'));
+app.use(require('./routes/settings'));
 
 app.use(express.static(path.join(__dirname, 'client')));
 
