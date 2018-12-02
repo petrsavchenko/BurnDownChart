@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const schedule = require('node-schedule');
 
 const cors = require('cors');
 const morgan = require('morgan');
@@ -14,6 +15,7 @@ const config = require('./config');
 const app = express();
 const port = config.port;
 const axios = require('axios');
+const statsManager = require('./helpers/statsManager');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -66,5 +68,13 @@ app.use(express.static(path.join(__dirname, 'client')));
 //     console.log(error);
 //   });
 // });
+
+const jobRunTime = { hour: 23, minute: 30 };
+// const jobRunTime = { hour: 9, minute: 39 };
+
+
+var statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+  statsManager.saveStatistics();
+});
 
 app.listen(port, () => console.log(`Server is listening on port ${port}`));

@@ -26,9 +26,68 @@ $(function() {
     fetch(`/defects/${releaseId}?startDate=${startDate}&endDate=${endDate}`)     
     .then(res => res.json())
     .then(data => {
-      
+      debugger;
+      buildBurndownChart(data.days, data.idealBurn, data.actualBurn);
     });
   });
+
+  let buildBurndownChart = (days, idealBurn, actualBurn) => {
+    $('#burndown').highcharts({
+      title: {
+        text: 'Burndown Chart',
+        x: -20 //center
+      },
+      colors: ['blue', 'red'],
+      plotOptions: {
+        line: {
+          lineWidth: 3
+        },
+        tooltip: {
+          hideDelay: 200
+        }
+      },
+      subtitle: {
+        text: 'Sprint 1',
+        x: -20
+      },
+      xAxis: {
+        categories: days
+      },
+      yAxis: {
+        title: {
+          text: 'Story Points'
+        },
+        plotLines: [{
+          value: 0,
+          width: 1
+        }]
+      },
+      tooltip: {
+        valueSuffix: ' sp',
+        crosshairs: true,
+        shared: true
+      },
+      legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle',
+        borderWidth: 0
+      },
+      series: [{
+        name: 'Ideal Burn',
+        color: 'rgba(255,0,0,0.25)',
+        lineWidth: 2,
+        data: idealBurn
+      }, {
+        name: 'Actual Burn',
+        color: 'rgba(0,120,200,0.75)',
+        marker: {
+          radius: 6
+        },
+        data: actualBurn
+      }]
+    });
+  } 
 
   $('#burndown').highcharts({
     title: {
