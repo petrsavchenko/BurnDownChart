@@ -37,44 +37,46 @@ axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
   .catch(err => console.error(err));
 
 
-app.use(require('./routes/defects'));
-app.use(require('./routes/settings'));
+/**
+ * Connect to MongoDB via Mongoose
+ */
+var mongoose = require('mongoose')
 
-app.use(express.static(path.join(__dirname, 'client')));
+const opts = {
+  promiseLibrary: global.Promise,
+  auto_reconnect: true,
+  autoIndex: true,
+  useNewUrlParser: true 
+}
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname + '/client/index.html'));
-// });
+mongoose.Promise = opts.promiseLibrary
+mongoose.connect(config.db.uri, opts)
 
-// app.get('/status', (req, res) => {
-//   axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
-//     "Domain": config.domain,
-//     "RefreshToken": config.refresh_token
-//   })
-//   .then(function (response) {
-//     axios.defaults.headers.common = {
-//       "authorization": `Bearer ${response.data.access_token}`
-//     }
-//     axios.post('https://home.plutoratest.com/api/suggestion/suggest', {"PageNum":4,"RecordsPerPage":10,"Text":"","SuggestionType":"Release","IncludeChildren":false})
-//       .then(res => {
-//         debugger;
-//         res
-//       })
-//       .catch(err => console.error(err));
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-// });
+const db = mongoose.connection
 
-const jobRunTime = { hour: 23, minute: 30 };
-// const jobRunTime = { hour: 9, minute: 39 };
+db.on('error', (err) => {
+  console.error(err);
+  if (err.message.code === 'ETIMEDOUT') {
+      winston.error('Db connection error. Reconnect is required.', err)
+      mongoose.connect(config.db.uri, opts)
+  }
+})
 
+db.once('open', () => {
+  console.log('Opened fine');
+  
+  app.use(require('./routes/defects'));
+  app.use(require('./routes/settings'));
 
-var statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+  app.use(express.static(path.join(__dirname, 'client')));
+
+  // const jobRunTime = { hour: 23, minute: 30 };
+
+  // var statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+  //   statsManager.saveStatistics();
+  // });
+
   statsManager.saveStatistics();
-});
+  app.listen(port, () => console.log(`Server is listening on port ${port}`));
+})
 
-app.listen(port, () => console.log(`Server is listening on port ${port}`));

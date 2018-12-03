@@ -3,6 +3,9 @@ const axios = require('axios');
 const fs = require('fs');
 const router = express.Router();
 
+const Setting = require('../models/setting');
+const Statistic = require('../models/statistic');
+
 /**
  * Get
  */
@@ -16,7 +19,7 @@ router.get('/defects/:releaseId', (req, res, next) => {
         "ReleaseIds" : [releaseId],
         "NoRelease" : false,
         "PageNum" : 0,
-        "RecordsPerPage" : 25,
+        "RecordsPerPage" : 1000,
         "SearchFilters" : [],
         "DataGridName":"Defect"
     })
@@ -59,38 +62,53 @@ router.get('/defects/:releaseId', (req, res, next) => {
         const workLeft = estimatedItemsTotal - doneItemsTotal;
         const actualBurnData = [];
 
-        fs.readFile('db.json', (err, data) => {
-            if (err){
-                console.log(err);
-            }
-
-            const obj = JSON.parse(data);
-            const releaseObj = obj.statistics[releaseId];
-            
-            if (releaseObj) {
+        Statistic.find({releaseId})
+            .then(stats => {
                 const days = [];
-                for (let date = startDate; date <= endDate; date.setDate(date.getDate()+1)){
+                for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
                     const dateKey = date.toISOString().split('T')[0];
                     const todayKey = new Date().toISOString().split('T')[0];
-                    actualBurnData.push(dateKey === todayKey? workLeft: releaseObj[dateKey]);
-                    days.push(`${date.getDate()}/${date.getMonth()+1}`);
-                    // const workLeft = releaseObj[dateKey];
-                    // if (workLeft != undefined){
-                    //     realBurnData.push(workLeft);
-                    // } else {
-                    //     // don't have statistic 
-                    //     break;
-                    //     // realBurnData.push(estimatedItemsTotal);
-                    // }
+                    const currentStat = stats.find(item => { item.date === dateKey });
+                    if (currentStat){
+                        actualBurnData.push(dateKey === todayKey? workLeft: currentStat.workLeft);
+                        days.push(`${date.getDate()}/${date.getMonth()+1}`);
+                    }
+
                 }
-            }
+                res.status(200).send({
+                    days,
+                    idealBurnData,
+                    actualBurnData
+                });
+            })
+            .catch(err => console.error(err));
+
+        // fs.readFile('db.json', (err, data) => {
+        //     if (err){
+        //         console.log(err);
+        //     }
+
+        //     const obj = JSON.parse(data);
+        //     const releaseObj = obj.statistics[releaseId];
             
-            res.status(200).send({
-                days,
-                idealBurnData,
-                actualBurnData
-            });
-        });
+        //     if (releaseObj) {
+        //         const days = [];
+        //         for (let date = startDate; date <= endDate; date.setDate(date.getDate()+1)){
+        //             const dateKey = date.toISOString().split('T')[0];
+        //             const todayKey = new Date().toISOString().split('T')[0];
+        //             actualBurnData.push(dateKey === todayKey? workLeft: releaseObj[dateKey]);
+        //             days.push(`${date.getDate()}/${date.getMonth()+1}`);
+        //             // const workLeft = releaseObj[dateKey];
+        //             // if (workLeft != undefined){
+        //             //     realBurnData.push(workLeft);
+        //             // } else {
+        //             //     // don't have statistic 
+        //             //     break;
+        //             //     // realBurnData.push(estimatedItemsTotal);
+        //             // }
+        //         }
+        //     }
+        // });
     })
     .catch(err => {
         res.status(500);
