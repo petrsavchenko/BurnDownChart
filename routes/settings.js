@@ -13,7 +13,7 @@ router.get('/settings', (req, res, next) => {
     axios.post('https://home.plutoratest.com/api/suggestion/suggest', 
     {
         "PageNum": 0,
-        "RecordsPerPage": 10,
+        "RecordsPerPage": 1000,
         "Text": "tents",
         "SuggestionType": "Release",
         "IncludeChildren": false
@@ -43,8 +43,6 @@ router.get('/settings', (req, res, next) => {
                 }
             })
             .catch(err => console.error(err))
-        
-
 
         // fs.readFile('db.json', (err, data) => {
         //     if (err){

@@ -12,6 +12,8 @@ const Statistic = require('../models/statistic');
 const axios = require('axios');
 const fs = require('fs');
 
+const defectsManager = require('./defectsManager');
+
 // /**
 //  * Config
 //  */
@@ -22,14 +24,12 @@ class StatsManager {
     saveStatistics() {
         Setting.findOne()
             .then(setting => {
-                let releaseId = null;
                 if(setting == null) {
-                    console.error("settings do not exist");
-                    releaseId = "bb3a8e0b-c2b0-44e6-ab91-360dab82eb58";
+                    console.error("Release was not selected");
+                    return;
+                    // releaseId = "bb3a8e0b-c2b0-44e6-ab91-360dab82eb58";
                 }
-                else {
-                    releaseId = setting.releaseId;
-                }
+                const releaseId = setting.releaseId;
 
                 axios.post('https://home.plutoratest.com/api/defects/defects/search', 
                 {
@@ -54,52 +54,45 @@ class StatsManager {
                 })
                 .then(result => {
                     const data = result.data.Data;
-    
-                    const estimatedItems = data.ResultSet
-                        .filter(item => /*item.Status && item.Status.Value === "Submitted" && */ 
-                            parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
-                        .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
-            
-                    const estimatedItemsTotal = estimatedItems
-                        .reduce((sum, item) => sum + item, 0);
-                
-                    const endStatuses = ["Verified", "Approved for RT"];
-                
-                    const doneItems = data.ResultSet
-                        .filter(item => item.Status && endStatuses.includes(item.Status.Value) &&  
-                        parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
-                        .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
-                
-                    const doneItemsTotal = doneItems
-                        .reduce((sum, item) => sum + item, 0);    
-                
-                    const workLeft = estimatedItemsTotal - doneItemsTotal;
+
+                    const workLeft = defectsManager.getItemsSnapshot(data.ResultSet).workLeft;
 
                     const today = new Date().toISOString().split('T')[0];
-                    Statistic.findOne({releaseId, date: today})
-                        .then(statistic => {
 
-                            if (statistic) {
-                                Statistic.update(statistic, {
-                                    releaseId,
-                                    date: today,
-                                    workLeft
-                                }).then(statistic => {
-                                    debugger;
-                                })
-                                .catch(err => console.error(err));
-                            } else {
-                                Statistic.create({
-                                    releaseId,
-                                    date: today,
-                                    workLeft
-                                }).then(statistic => {
-                                    debugger; 
-                                })
-                                .catch(err => console.error(err));
-                            }
-                        })
-                        .catch(err => console.error(err))
+                    const stat = {
+                        releaseId,
+                        date: today,
+                        workLeft
+                    };
+
+                    Statistic.findOneAndUpdate({releaseId, date: today}, stat, { upsert: true }, (err, res) => {
+                        debugger;
+                        // Deal with the response data/error
+                    });
+
+                //     Statistic.findOne({releaseId, date: today})
+                //         .then(statistic => {
+                //             // if (statistic) {
+                //             //     Statistic.update(statistic, {
+                //             //         releaseId,
+                //             //         date: today,
+                //             //         workLeft
+                //             //     }).then(statistic => {
+                //             //         debugger;
+                //             //     })
+                //             //     .catch(err => console.error(err));
+                //             // } else {
+                //             //     Statistic.create({
+                //             //         releaseId,
+                //             //         date: today,
+                //             //         workLeft
+                //             //     }).then(statistic => {
+                //             //         debugger; 
+                //             //     })
+                //             //     .catch(err => console.error(err));
+                //             // }
+                //         })
+                //         .catch(err => console.error(err))
                 });
             })
             .catch(err => console.error(err))
