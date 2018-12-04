@@ -17,6 +17,7 @@ const config = require('../config');
  */
 router.get('/defects/:releaseId', (req, res, next) => {
 
+    debugger
     const releaseId = req.params.releaseId;
     const startDate = new Date(req.query.startDate);
     const endDate = new Date(req.query.endDate);

@@ -70,7 +70,7 @@ db.once('open', () => {
 
   // const jobRunTime = { hour: 23, minute: 30 };
 
-  // var statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+  // const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
   //   statsManager.saveStatistics();
   // }); 
 

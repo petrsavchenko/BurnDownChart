@@ -75,7 +75,7 @@ class DefectsManager {
         const actualBurnData = [];
         const days = [];
 
-        for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+        for (let date = new Date(startDate.getTime()); date <= endDate; date.setDate(date.getDate() + 1)) {
             const dateKey = date.toISOString().split('T')[0];
             const todayKey = new Date().toISOString().split('T')[0];
             const currentStat = stats.find(item => { item.date === dateKey });
