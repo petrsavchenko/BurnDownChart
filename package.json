@@ -2,8 +2,6 @@
   "name": "burndownchart",
   "version": "1.0.0",
   "scripts": {
-    "client": "cd client && npm start",
-    "heroku-postbuild": "cd client && npm install && npm run build",
     "server": "nodemon server.js",
     "debug": "nodemon --inspect server.js"
   },
