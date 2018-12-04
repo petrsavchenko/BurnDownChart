@@ -70,7 +70,6 @@ $(function() {
           releasesSelect.val(item.Id);
         }
       });
-      debugger
       if (data.startDate) {
         $('#startDate').val(data.startDate.split("T")[0]);
       }

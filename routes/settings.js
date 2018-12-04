@@ -59,6 +59,7 @@ router.get('/settings', (req, res, next) => {
                                 
                                 Statistic.find({releaseId: selectedRelease.Id})
                                     .then(stats => {
+                                        debugger;
                                         response.chartData = defectsManager.getBurnDownChartData(data.ResultSet, stats,
                                             startDate, endDate);
                                         res.status(200).send(response);

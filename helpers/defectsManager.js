@@ -78,7 +78,7 @@ class DefectsManager {
         for (let date = new Date(startDate.getTime()); date <= endDate; date.setDate(date.getDate() + 1)) {
             const dateKey = date.toISOString().split('T')[0];
             const todayKey = new Date().toISOString().split('T')[0];
-            const currentStat = stats.find(item => { item.date === dateKey });
+            const currentStat = stats.find(item => { return item.date === dateKey });
             
             if (dateKey === todayKey) {
                 // use more up to date data
