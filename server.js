@@ -69,12 +69,14 @@ db.once('open', () => {
   app.use(require('./routes/settings'));
 
   // const jobRunTime = { hour: 23, minute: 30 };
+  // 5pm Au 
+  const jobRunTime = { hour: 6, minute: 0 };
 
-  // const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
-  //   statsManager.saveStatistics();
-  // }); 
+  const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+    statsManager.saveStatistics();
+  }); 
 
-  statsManager.saveStatistics();
+  // statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
 })
 
