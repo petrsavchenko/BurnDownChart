@@ -13,8 +13,7 @@ module.exports = {
         refresh_token: 'hAtQb7vG4yaTiyXgDX/+G9PuVs4ov1AZ4GfNXP06FEa8s1IviHNkU/WB7rxNyQdK0VcG8abg2c4FRQmwePGHVw==',
     },    
     db: {
-        uri: 'mongodb://localhost:27017/burnDownChart'
-        // 'mongodb+srv://pricechecker:gtnh5512+@pricechecker-bsqyh.mongodb.net/pricechecker?retryWrites=true' 
-        //   || 'mongodb://localhost:27017/pricechecker',
+        uri: 'mongodb+srv://pricechecker:gtnh5512+@pricechecker-bsqyh.mongodb.net/burnDownChart?retryWrites=true' 
+          || 'mongodb://localhost:27017/burnDownChart',
     },
 }
