@@ -1,6 +1,15 @@
 #burndown {
-  width 100%;
-  min-width 310px; 
-  height 400px; 
-  margin 0 auto;
+  width: 100%;
+  min-width: 310px; 
+  height: 400px; 
+  margin: 0 auto;
+}
+
+.fields {
+  text-align: center;
+  margin-top: 1em; 
+}
+
+.fields input, .fields select {
+  margin: 1em;
 }

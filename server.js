@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const schedule = require('node-schedule');
+const axios = require('axios');
 
 const cors = require('cors');
 const morgan = require('morgan');
@@ -12,69 +13,68 @@ const path = require('path');
  */
 const config = require('./config');
 
+const statsManager = require('./helpers/statsManager');
+
 const app = express();
 const port = config.port;
-const axios = require('axios');
-const statsManager = require('./helpers/statsManager');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-
 app.use(morgan(`API Request (port ${port}): :method :url :status :response-time ms - :res[content-length]`));
 
-axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
-    "Domain": config.domain,
-    "RefreshToken": config.refresh_token
-  })
-  .then(function (response) {
-    axios.defaults.headers.common = {
-      "authorization": `Bearer ${response.data.access_token}`
-    }
-  })
-  .catch(err => console.error(err));
-
-
-app.use(require('./routes/defects'));
-app.use(require('./routes/settings'));
-
+axios.post(config.external.getAuthUrl, {
+  "Domain": config.external.domain,
+  "RefreshToken": config.external.refresh_token
+})
+.then(res => {
+  axios.defaults.headers.common = {
+    "authorization": `Bearer ${res.data.access_token}`
+  }
+})
+.catch(err => {debugger; console.error(err)});
 app.use(express.static(path.join(__dirname, 'client')));
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname + '/client/index.html'));
-// });
+/**
+ * Connect to MongoDB via Mongoose
+ */
+var mongoose = require('mongoose')
 
-// app.get('/status', (req, res) => {
-//   axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
-//     "Domain": config.domain,
-//     "RefreshToken": config.refresh_token
-//   })
-//   .then(function (response) {
-//     axios.defaults.headers.common = {
-//       "authorization": `Bearer ${response.data.access_token}`
-//     }
-//     axios.post('https://home.plutoratest.com/api/suggestion/suggest', {"PageNum":4,"RecordsPerPage":10,"Text":"","SuggestionType":"Release","IncludeChildren":false})
-//       .then(res => {
-//         debugger;
-//         res
-//       })
-//       .catch(err => console.error(err));
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-// });
+const opts = {
+  promiseLibrary: global.Promise,
+  auto_reconnect: true,
+  autoIndex: true,
+  useNewUrlParser: true 
+}
 
-const jobRunTime = { hour: 23, minute: 30 };
-// const jobRunTime = { hour: 9, minute: 39 };
+mongoose.Promise = opts.promiseLibrary
+mongoose.connect(config.db.uri, opts)
 
+const db = mongoose.connection
 
-var statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+db.on('error', (err) => {
+  console.error(err);
+  if (err.message.code === 'ETIMEDOUT') {
+      winston.error('Db connection error. Reconnect is required.', err)
+      mongoose.connect(config.db.uri, opts)
+  }
+})
+
+db.once('open', () => {
+  console.log('Opened fine');
+  
+  app.use(require('./routes/defects'));
+  app.use(require('./routes/settings'));
+
+  // const jobRunTime = { hour: 23, minute: 30 };
+
+  // const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
+  //   statsManager.saveStatistics();
+  // }); 
+
   statsManager.saveStatistics();
-});
+  app.listen(port, () => console.log(`Server is listening on port ${port}`));
+})
 
-app.listen(port, () => console.log(`Server is listening on port ${port}`));
