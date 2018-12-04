@@ -76,7 +76,7 @@ db.once('open', () => {
     statsManager.saveStatistics();
   }); 
 
-  // statsManager.saveStatistics();
+  statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
 })
 
