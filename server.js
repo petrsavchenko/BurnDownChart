@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const schedule = require('node-schedule');
+const axios = require('axios');
 
 const cors = require('cors');
 const morgan = require('morgan');
@@ -12,30 +13,29 @@ const path = require('path');
  */
 const config = require('./config');
 
+const statsManager = require('./helpers/statsManager');
+
 const app = express();
 const port = config.port;
-const axios = require('axios');
-const statsManager = require('./helpers/statsManager');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-
 app.use(morgan(`API Request (port ${port}): :method :url :status :response-time ms - :res[content-length]`));
 
-axios.post('https://home.plutoratest.com/api/authentication/auth/refresh', {
-    "Domain": config.domain,
-    "RefreshToken": config.refresh_token
-  })
-  .then(function (response) {
-    axios.defaults.headers.common = {
-      "authorization": `Bearer ${response.data.access_token}`
-    }
-  })
-  .catch(err => console.error(err));
-
+axios.post(config.external.getAuthUrl, {
+  "Domain": config.external.domain,
+  "RefreshToken": config.external.refresh_token
+})
+.then(res => {
+  axios.defaults.headers.common = {
+    "authorization": `Bearer ${res.data.access_token}`
+  }
+})
+.catch(err => {debugger; console.error(err)});
+app.use(express.static(path.join(__dirname, 'client')));
 
 /**
  * Connect to MongoDB via Mongoose
@@ -68,13 +68,11 @@ db.once('open', () => {
   app.use(require('./routes/defects'));
   app.use(require('./routes/settings'));
 
-  app.use(express.static(path.join(__dirname, 'client')));
-
   // const jobRunTime = { hour: 23, minute: 30 };
 
   // var statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
   //   statsManager.saveStatistics();
-  // });
+  // }); 
 
   statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));

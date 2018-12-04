@@ -1,23 +1,14 @@
-// // Crowling
-// const needle = require('needle');
-// const cheerio = require('cheerio');
-// const winston = require('winston');
-
-// const User = require('../models/user');
-// const Crawler = require('../models/crawler');
-
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
 
 const axios = require('axios');
-const fs = require('fs');
 
 const defectsManager = require('./defectsManager');
 
-// /**
-//  * Config
-//  */
-// const config = require('../config');
+/**
+ * Config
+ */
+const config = require('../config');
 
 class StatsManager {
 
@@ -31,7 +22,7 @@ class StatsManager {
                 }
                 const releaseId = setting.releaseId;
 
-                axios.post('https://home.plutoratest.com/api/defects/defects/search', 
+                axios.post(config.external.getTicketsUrl, 
                 {
                     "ReleaseIds" : [releaseId],
                     "NoRelease" : false,
@@ -55,7 +46,7 @@ class StatsManager {
                 .then(result => {
                     const data = result.data.Data;
 
-                    const workLeft = defectsManager.getItemsSnapshot(data.ResultSet).workLeft;
+                    const workLeft = defectsManager.getWorkLeft(data.ResultSet);
 
                     const today = new Date().toISOString().split('T')[0];
 
@@ -66,33 +57,10 @@ class StatsManager {
                     };
 
                     Statistic.findOneAndUpdate({releaseId, date: today}, stat, { upsert: true }, (err, res) => {
-                        debugger;
-                        // Deal with the response data/error
+                        if (err) {
+                            console.log(err);
+                        }
                     });
-
-                //     Statistic.findOne({releaseId, date: today})
-                //         .then(statistic => {
-                //             // if (statistic) {
-                //             //     Statistic.update(statistic, {
-                //             //         releaseId,
-                //             //         date: today,
-                //             //         workLeft
-                //             //     }).then(statistic => {
-                //             //         debugger;
-                //             //     })
-                //             //     .catch(err => console.error(err));
-                //             // } else {
-                //             //     Statistic.create({
-                //             //         releaseId,
-                //             //         date: today,
-                //             //         workLeft
-                //             //     }).then(statistic => {
-                //             //         debugger; 
-                //             //     })
-                //             //     .catch(err => console.error(err));
-                //             // }
-                //         })
-                //         .catch(err => console.error(err))
                 });
             })
             .catch(err => console.error(err))

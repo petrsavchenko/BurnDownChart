@@ -1,6 +1,5 @@
 const express = require('express');
 const axios = require('axios');
-// const fs = require('fs');
 const router = express.Router();
 
 const Setting = require('../models/setting');
@@ -8,11 +7,16 @@ const Statistic = require('../models/statistic');
 
 const defectsManager = require('../helpers/defectsManager');
 
+/**
+ * Config
+ */
+const config = require('../config');
 
 /**
  * Get
  */
 router.get('/defects/:releaseId', (req, res, next) => {
+
     const releaseId = req.params.releaseId;
     const startDate = new Date(req.query.startDate);
     const endDate = new Date(req.query.endDate);
@@ -26,21 +30,12 @@ router.get('/defects/:releaseId', (req, res, next) => {
     const setting = { releaseId, startDate, endDate };
 
     Setting.findOneAndUpdate({}, setting, { upsert: true }, (err, res) => {
-        debugger;
-        // Deal with the response data/error
+        if (err) {
+            console.log(err);
+        }            
     });
 
-
-    // Setting.create({
-    //     releaseId,
-    //     startDate : startDate.toISOString().split('T')[0],
-    //     endDate : endDate.toISOString().split('T')[0],
-    // }).then(statistic => {
-    //     debugger; 
-    // })
-    // .catch(err => console.error(err));
-
-    axios.post('https://home.plutoratest.com/api/defects/defects/search', 
+    axios.post(config.external.getTicketsUrl, 
     {
         "ReleaseIds" : [releaseId],
         "NoRelease" : false,
@@ -52,7 +47,7 @@ router.get('/defects/:releaseId', (req, res, next) => {
     .then(result => {
         const data = result.data.Data;
 
-        const defectsSnapshot = defectsManager.getItemsSnapshot(data.ResultSet);
+        const defectsSnapshot = defectsManager.getItemsSnapshot(data.ResultSet, startDate, endDate);
         const actualBurnData = [];
 
         Statistic.find({releaseId})
@@ -81,8 +76,8 @@ router.get('/defects/:releaseId', (req, res, next) => {
             .catch(err => console.error(err));
     })
     .catch(err => {
-        res.status(500);
         console.error(err);
+        res.status(500);
     });
 })
 
