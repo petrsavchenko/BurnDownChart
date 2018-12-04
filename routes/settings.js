@@ -3,6 +3,8 @@ const axios = require('axios');
 const router = express.Router();
 
 const Setting = require('../models/setting');
+const defectsManager = require('../helpers/defectsManager');
+
 
 /**
  * Config
@@ -13,6 +15,7 @@ const config = require('../config');
  * Get
  */
 router.get('/settings', (req, res, next) => {
+    debugger
     axios.post(config.external.getRelasesUrl, 
     {
         "PageNum": 0,
@@ -32,14 +35,18 @@ router.get('/settings', (req, res, next) => {
                     const startDate = setting.startDate;
                     const endDate = setting.endDate;
                     const selectedRelease = releases.find(item => item.Id === setting.releaseId);
-                    if (selectedRelease) {
-                        selectedRelease.Selected = true;
-                    }
-                    res.send(200, {
+                    const response = {
                         releases,
                         startDate,
                         endDate
-                    });
+                    }
+                    if (selectedRelease) {
+                        selectedRelease.Selected = true;
+                        const chartData =  defectsManager.getBurnDownChartData(selectedRelease.Id,
+                            startDate, endDate);
+                        response.chartData = chartData;
+                    }
+                    res.send(200, response);
                 }
             })
             .catch(err => console.error(err));        

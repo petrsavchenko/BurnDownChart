@@ -1,19 +1,28 @@
+const axios = require('axios');
+
+/**
+ * Config
+ */
+const config = require('../config');
+
+const Statistic = require('../models/statistic');
+
+
 class DefectsManager {
     getIdealBurnData(average, estimatedItemsTotal) {
+
         const idealBurnData = [];
-        while (estimatedItemsTotal > average){
+        idealBurnData.push(estimatedItemsTotal);
+        while (estimatedItemsTotal >= average){
             estimatedItemsTotal -= average;
-            idealBurnData.push(estimatedItemsTotal);
-        }
-        if (estimatedItemsTotal > 0) {
             idealBurnData.push(estimatedItemsTotal);
         }
         return idealBurnData;
     }  
 
-    getDiffDays(startDate, endDate){
-        const oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+    getDiffDays(startDate, endDate) {
 
+        const oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
         const diffDays = Math.round(Math.abs((startDate.getTime() - endDate.getTime())/(oneDay)));
         return diffDays;
     }
@@ -33,6 +42,7 @@ class DefectsManager {
     }
 
     getEstimatedItemsTotal(defects) {
+
         const estimatedItems = defects
             .filter(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
             .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
@@ -44,6 +54,7 @@ class DefectsManager {
     }
 
     getWorkLeft(defects) {
+
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
         const endStatuses = ["Verified", "Approved for RT"];
 
@@ -57,6 +68,52 @@ class DefectsManager {
 
         const workLeft = estimatedItemsTotal - doneItemsTotal;
         return workLeft;
+    }
+
+    getBurnDownChartData (releaseId, startDate, endDate) {
+
+        axios.post(config.external.getTicketsUrl, 
+            {
+                "ReleaseIds" : [releaseId],
+                "NoRelease" : false,
+                "PageNum" : 0,
+                "RecordsPerPage" : 1000,
+                "SearchFilters" : [],
+                "DataGridName":"Defect"
+            })
+            .then(result => {
+                
+                const data = result.data.Data;
+        
+                const defectsSnapshot = this.getItemsSnapshot(data.ResultSet, startDate, endDate);
+                const actualBurnData = [];
+                
+                Statistic.find({ releaseId })
+                    .then(stats => {
+                        const days = [];
+                        for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+                            const dateKey = date.toISOString().split('T')[0];
+                            const todayKey = new Date().toISOString().split('T')[0];
+                            const currentStat = stats.find(item => { item.date === dateKey });
+                            
+                            if (dateKey === todayKey) {
+                                // use more up to date data
+                                actualBurnData.push(defectsSnapshot.workLeft);
+                            } else {
+                                actualBurnData.push(currentStat? currentStat.workLeft: null);
+                            }
+        
+                            days.push(`${date.getDate()}/${date.getMonth()+1}`);
+                        }
+                        return {
+                            days,
+                            idealBurnData: defectsSnapshot.idealBurnData,
+                            actualBurnData
+                        };
+                    })
+                    .catch(err => console.error(err));
+            })
+            .catch(err => console.error(err));
     }
 }
 

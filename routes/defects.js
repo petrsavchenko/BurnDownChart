@@ -35,50 +35,53 @@ router.get('/defects/:releaseId', (req, res, next) => {
         }            
     });
 
-    axios.post(config.external.getTicketsUrl, 
-    {
-        "ReleaseIds" : [releaseId],
-        "NoRelease" : false,
-        "PageNum" : 0,
-        "RecordsPerPage" : 1000,
-        "SearchFilters" : [],
-        "DataGridName":"Defect"
-    })
-    .then(result => {
-        const data = result.data.Data;
+    const burnDownChartData = defectsManager.getBurnDownChartData(releaseId, startDate, endDate);
+    res.status(200).send(burnDownChartData);
 
-        const defectsSnapshot = defectsManager.getItemsSnapshot(data.ResultSet, startDate, endDate);
-        const actualBurnData = [];
+    // axios.post(config.external.getTicketsUrl, 
+    // {
+    //     "ReleaseIds" : [releaseId],
+    //     "NoRelease" : false,
+    //     "PageNum" : 0,
+    //     "RecordsPerPage" : 1000,
+    //     "SearchFilters" : [],
+    //     "DataGridName":"Defect"
+    // })
+    // .then(result => {
+    //     const data = result.data.Data;
 
-        Statistic.find({releaseId})
-            .then(stats => {
-                const days = [];
-                for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
-                    const dateKey = date.toISOString().split('T')[0];
-                    const todayKey = new Date().toISOString().split('T')[0];
-                    const currentStat = stats.find(item => { item.date === dateKey });
+    //     const defectsSnapshot = defectsManager.getItemsSnapshot(data.ResultSet, startDate, endDate);
+    //     const actualBurnData = [];
+        
+    //     Statistic.find({releaseId})
+    //         .then(stats => {
+    //             const days = [];
+    //             for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+    //                 const dateKey = date.toISOString().split('T')[0];
+    //                 const todayKey = new Date().toISOString().split('T')[0];
+    //                 const currentStat = stats.find(item => { item.date === dateKey });
                     
-                    if (dateKey === todayKey) {
-                        // use more up to date data
-                        actualBurnData.push(defectsSnapshot.workLeft);
-                    } else {
-                        actualBurnData.push(currentStat? currentStat.workLeft: null);
-                    }
+    //                 if (dateKey === todayKey) {
+    //                     // use more up to date data
+    //                     actualBurnData.push(defectsSnapshot.workLeft);
+    //                 } else {
+    //                     actualBurnData.push(currentStat? currentStat.workLeft: null);
+    //                 }
 
-                    days.push(`${date.getDate()}/${date.getMonth()+1}`);
-                }
-                res.status(200).send({
-                    days,
-                    idealBurnData: defectsSnapshot.idealBurnData,
-                    actualBurnData
-                });
-            })
-            .catch(err => console.error(err));
-    })
-    .catch(err => {
-        console.error(err);
-        res.status(500);
-    });
+    //                 days.push(`${date.getDate()}/${date.getMonth()+1}`);
+    //             }
+    //             res.status(200).send({
+    //                 days,
+    //                 idealBurnData: defectsSnapshot.idealBurnData,
+    //                 actualBurnData
+    //             });
+    //         })
+    //         .catch(err => console.error(err));
+    // })
+    // .catch(err => {
+    //     console.error(err);
+    //     res.status(500);
+    // });
 })
 
 module.exports = router;

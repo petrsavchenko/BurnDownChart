@@ -79,8 +79,6 @@ $(function() {
       }
     });
 
-  //var releaseId = 'bb3a8e0b-c2b0-44e6-ab91-360dab82eb58';
-
   $('#submit').click(() => {
     const releaseId = $('#releases').val();
     const startDate = $('#startDate').val();
@@ -89,7 +87,6 @@ $(function() {
     fetch(`/defects/${releaseId}?startDate=${startDate}&endDate=${endDate}`)     
       .then(res => res.json())
       .then(data => {
-        debugger;
         buildBurndownChart(data.days, data.idealBurnData, data.actualBurnData);
       });
   });
@@ -97,7 +94,7 @@ $(function() {
   let buildBurndownChart = (days, idealBurnData, actualBurnData) => {
     $('#burndown').highcharts({
       title: {
-        text: 'Burndown Chart',
+        text: $("#releases option:selected").text(),
         x: -20 //center
       },
       colors: ['blue', 'red'],
@@ -110,7 +107,7 @@ $(function() {
         }
       },
       subtitle: {
-        text: 'Sprint 1',
+        text: `${new Date($('#startDate').val()).toDateString()} - ${new Date($('#endDate').val()).toDateString()}`,
         x: -20
       },
       xAxis: {

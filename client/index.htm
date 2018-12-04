@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8">
-        <link href="styles.css" />
+        <link rel="stylesheet" type="text/css" href="styles.css">
     </head>
     <body>
         <div id="burndown"></div>
-        Releases:
-        <select id="releases" name="releases">
-        </select>
-        Sprint start date: 
-        <input type="date" id="startDate" name="startDate">
-        Sprint end date:
-        <input type="date" id="endDate" name="endDate">
-        <input type="button" id="submit" name="submit" value="Submit">
+        <footer class="fields">
+            <label for="releases">Releases:</label>
+            <select id="releases" name="releases">
+            </select>
+            
+            <label for="startDate">Sprint start date:</label>
+            
+            <input type="date" id="startDate" name="startDate">
+            <label for="endDate">Sprint end date:</label>
+            <input type="date" id="endDate" name="endDate">
+            <input type="button" id="submit" name="submit" value="Submit">
+        </section>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="scripts.js"></script>
