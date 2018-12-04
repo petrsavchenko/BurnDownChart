@@ -3,6 +3,7 @@ const axios = require('axios');
 const router = express.Router();
 
 const Setting = require('../models/setting');
+const Statistic = require('../models/statistic');
 const defectsManager = require('../helpers/defectsManager');
 
 
@@ -15,7 +16,7 @@ const config = require('../config');
  * Get
  */
 router.get('/settings', (req, res, next) => {
-    debugger
+
     axios.post(config.external.getRelasesUrl, 
     {
         "PageNum": 0,
@@ -42,11 +43,35 @@ router.get('/settings', (req, res, next) => {
                     }
                     if (selectedRelease) {
                         selectedRelease.Selected = true;
-                        const chartData =  defectsManager.getBurnDownChartData(selectedRelease.Id,
-                            startDate, endDate);
-                        response.chartData = chartData;
+
+                        axios.post(config.external.getTicketsUrl, 
+                            {
+                                "ReleaseIds" : [selectedRelease.Id],
+                                "NoRelease" : false,
+                                "PageNum" : 0,
+                                "RecordsPerPage" : 1000,
+                                "SearchFilters" : [],
+                                "DataGridName":"Defect"
+                            })
+                            .then(result => {
+                                const data = result.data.Data;
+                                
+                                Statistic.find({releaseId: selectedRelease.Id})
+                                    .then(stats => {
+                                        response.chartData = defectsManager.getBurnDownChartData(data.ResultSet, stats,
+                                            startDate, endDate);
+                                        res.status(200).send(response);
+                                    })
+                                    .catch(err => console.error(err));
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                res.status(500);
+                            });                        
+                    } else {
+                        res.send(200, response);
                     }
-                    res.send(200, response);
+                    
                 }
             })
             .catch(err => console.error(err));        

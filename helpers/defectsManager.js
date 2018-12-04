@@ -70,50 +70,30 @@ class DefectsManager {
         return workLeft;
     }
 
-    getBurnDownChartData (releaseId, startDate, endDate) {
+    getBurnDownChartData (defects, stats, startDate, endDate) {
+        const defectsSnapshot = this.getItemsSnapshot(defects, startDate, endDate);
+        const actualBurnData = [];
+        const days = [];
 
-        axios.post(config.external.getTicketsUrl, 
-            {
-                "ReleaseIds" : [releaseId],
-                "NoRelease" : false,
-                "PageNum" : 0,
-                "RecordsPerPage" : 1000,
-                "SearchFilters" : [],
-                "DataGridName":"Defect"
-            })
-            .then(result => {
-                
-                const data = result.data.Data;
-        
-                const defectsSnapshot = this.getItemsSnapshot(data.ResultSet, startDate, endDate);
-                const actualBurnData = [];
-                
-                Statistic.find({ releaseId })
-                    .then(stats => {
-                        const days = [];
-                        for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
-                            const dateKey = date.toISOString().split('T')[0];
-                            const todayKey = new Date().toISOString().split('T')[0];
-                            const currentStat = stats.find(item => { item.date === dateKey });
-                            
-                            if (dateKey === todayKey) {
-                                // use more up to date data
-                                actualBurnData.push(defectsSnapshot.workLeft);
-                            } else {
-                                actualBurnData.push(currentStat? currentStat.workLeft: null);
-                            }
-        
-                            days.push(`${date.getDate()}/${date.getMonth()+1}`);
-                        }
-                        return {
-                            days,
-                            idealBurnData: defectsSnapshot.idealBurnData,
-                            actualBurnData
-                        };
-                    })
-                    .catch(err => console.error(err));
-            })
-            .catch(err => console.error(err));
+        for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+            const dateKey = date.toISOString().split('T')[0];
+            const todayKey = new Date().toISOString().split('T')[0];
+            const currentStat = stats.find(item => { item.date === dateKey });
+            
+            if (dateKey === todayKey) {
+                // use more up to date data
+                actualBurnData.push(defectsSnapshot.workLeft);
+            } else {
+                actualBurnData.push(currentStat? currentStat.workLeft: null);
+            }
+
+            days.push(`${date.getDate()}/${date.getMonth()+1}`);
+        }
+        return {
+            days,
+            idealBurnData: defectsSnapshot.idealBurnData,
+            actualBurnData
+        };
     }
 }
 

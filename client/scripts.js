@@ -66,7 +66,7 @@ $(function() {
         releasesSelect.append(
           $('<option></option>').val(item.Id).html(item.Name)
         );
-        if (item.Selected){
+        if (item.Selected) {
           releasesSelect.val(item.Id);
         }
       });
@@ -76,6 +76,9 @@ $(function() {
       }
       if (data.endDate) {
         $('#endDate').val(data.endDate.split("T")[0]);
+      }
+      if (data.chartData){
+        buildBurndownChart(data.chartData.days, data.chartData.idealBurnData, data.chartData.actualBurnData);
       }
     });
 
@@ -91,7 +94,7 @@ $(function() {
       });
   });
 
-  let buildBurndownChart = (days, idealBurnData, actualBurnData) => {
+  const buildBurndownChart = (days, idealBurnData, actualBurnData) => {
     $('#burndown').highcharts({
       title: {
         text: $("#releases option:selected").text(),
