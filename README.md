@@ -1,4 +1,4 @@
-# BurnDownChart
+# Burn Down Chart
 
 There are a list of improvements which could be applied:
 1. Implement jwt token authentication to authorize an user
