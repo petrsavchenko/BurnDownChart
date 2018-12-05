@@ -1,14 +1,5 @@
-const axios = require('axios');
-
-/**
- * Config
- */
-const config = require('../config');
-
-const Statistic = require('../models/statistic');
-
-
 class DefectsManager {
+
     getIdealBurnData(average, estimatedItemsTotal) {
 
         const idealBurnData = [];
@@ -56,7 +47,7 @@ class DefectsManager {
     getWorkLeft(defects) {
 
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
-        const endStatuses = ["Verified", "Approved for RT"];
+        const endStatuses = ["Verified", "Approved for RT", "Ready RT", "Ready Release", "DeployedToProd"];
 
         const doneItems = defects
             .filter(item => item.Status && endStatuses.includes(item.Status.Value) &&  
@@ -71,6 +62,7 @@ class DefectsManager {
     }
 
     getBurnDownChartData (defects, stats, startDate, endDate) {
+
         const defectsSnapshot = this.getItemsSnapshot(defects, startDate, endDate);
         const actualBurnData = [];
         const days = [];

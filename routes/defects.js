@@ -17,7 +17,6 @@ const config = require('../config');
  */
 router.get('/defects/:releaseId', (req, res, next) => {
 
-    debugger
     const releaseId = req.params.releaseId;
     const startDate = new Date(req.query.startDate);
     const endDate = new Date(req.query.endDate);
@@ -48,7 +47,7 @@ router.get('/defects/:releaseId', (req, res, next) => {
     .then(result => {
         const data = result.data.Data;
         
-        Statistic.find({releaseId})
+        Statistic.find({ releaseId })
             .then(stats => {
                 const chartData = defectsManager.getBurnDownChartData(data.ResultSet, stats,
                     startDate, endDate);

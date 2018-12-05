@@ -1,7 +1,7 @@
+const axios = require('axios');
+
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
-
-const axios = require('axios');
 
 const defectsManager = require('./defectsManager');
 
@@ -18,7 +18,6 @@ class StatsManager {
                 if(setting == null) {
                     console.error("Release was not selected");
                     return;
-                    // releaseId = "bb3a8e0b-c2b0-44e6-ab91-360dab82eb58";
                 }
                 const releaseId = setting.releaseId;
 
