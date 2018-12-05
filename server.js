@@ -34,7 +34,7 @@ axios.post(config.external.getAuthUrl, {
     "authorization": `Bearer ${res.data.access_token}`
   }
 })
-.catch(err => {debugger; console.error(err)});
+.catch(err => {console.error(err)});
 app.use(express.static(path.join(__dirname, 'client')));
 
 /**
@@ -70,15 +70,15 @@ db.once('open', () => {
 
   // const jobRunTime = { hour: 23, minute: 30 };
   // 5pm Au 
-  const jobRunTime = { hour: 20, minute: 0 };
+  const jobRunTime = { hour: 11, minute: 0 };
 
   const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
     statsManager.saveStatistics();
     console.log(`Schedule Job happend. Date is ${new Date().toString()}`)
   }); 
 
-  console.log(`Now is ${new Date().toString()}`);
-  //statsManager.saveStatistics();
+  // console.log(`Now is ${new Date().toString()}`);
+  // statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
 })
 
