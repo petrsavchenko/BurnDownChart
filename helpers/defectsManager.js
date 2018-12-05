@@ -1,15 +1,10 @@
 class DefectsManager {
 
-    getIdealBurnData(average, estimatedItemsTotal) {
+    round(value, precision) {
 
-        const idealBurnData = [];
-        idealBurnData.push(estimatedItemsTotal);
-        while (estimatedItemsTotal >= average){
-            estimatedItemsTotal -= average;
-            idealBurnData.push(estimatedItemsTotal.toFixed(2));
-        }
-        return idealBurnData;
-    }  
+        var multiplier = Math.pow(10, precision || 0);
+        return Math.round(value * multiplier) / multiplier;
+    }
 
     getDiffDays(startDate, endDate) {
 
@@ -17,6 +12,19 @@ class DefectsManager {
         const diffDays = Math.round(Math.abs((startDate.getTime() - endDate.getTime())/(oneDay)));
         return diffDays;
     }
+
+    getIdealBurnData(average, estimatedItemsTotal) {
+
+        const idealBurnData = [];
+        idealBurnData.push(estimatedItemsTotal);
+        while (estimatedItemsTotal >= average){
+            estimatedItemsTotal -= average;
+            idealBurnData.push(this.round(estimatedItemsTotal, 2));
+        }
+        return idealBurnData;
+    }  
+
+
 
     getItemsSnapshot(defects, startDate, endDate) {
 

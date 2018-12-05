@@ -77,6 +77,7 @@ db.once('open', () => {
     console.log(`Schedule Job happend. Date is ${new Date().toString()}`)
   }); 
 
+  console.log(`Now is ${new Date().toString()}`);
   //statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
 })
