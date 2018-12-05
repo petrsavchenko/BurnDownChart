@@ -45,7 +45,7 @@ class DefectsManager {
     }
 
     getWorkLeft(defects) {
-
+        debugger
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
         const endStatuses = ["Verified", "Approved for RT", "Ready RT", "Ready Release", "DeployedToProd"];
 

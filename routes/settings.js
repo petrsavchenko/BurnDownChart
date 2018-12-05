@@ -52,7 +52,7 @@ router.get('/settings', (req, res, next) => {
                                 "PageNum" : 0,
                                 "RecordsPerPage" : 1000,
                                 "SearchFilters" : [],
-                                "DataGridName":"Defect"
+                                // "DataGridName":"Defect"
                             })
                             .then(result => {
                                 const data = result.data.Data;
