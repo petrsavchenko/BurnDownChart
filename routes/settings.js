@@ -33,7 +33,6 @@ router.get('/settings', (req, res, next) => {
                     console.log("settings do not exist");
                     res.send(200, { releases });
                 } else {
-                    debugger
                     const startDate = setting.startDate;
                     const endDate = setting.endDate;
                     const selectedRelease = releases.find(item => item.Id === setting.releaseId);

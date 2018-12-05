@@ -21,10 +21,11 @@ class DefectsManager {
             estimatedItemsTotal -= average;
             idealBurnData.push(this.round(estimatedItemsTotal, 2));
         }
+        if (estimatedItemsTotal > 0) {
+            idealBurnData.push(0);
+        }
         return idealBurnData;
     }  
-
-
 
     getItemsSnapshot(defects, startDate, endDate) {
 
