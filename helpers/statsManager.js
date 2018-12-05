@@ -55,11 +55,11 @@ class StatsManager {
                         workLeft
                     };
 
-                    Statistic.findOneAndUpdate({releaseId, date: today}, stat, { upsert: true }, (err, res) => {
-                        if (err) {
-                            console.log(err);
-                        }
-                    });
+                    // Statistic.findOneAndUpdate({releaseId, date: today}, stat, { upsert: true }, (err, res) => {
+                    //     if (err) {
+                    //         console.log(err);
+                    //     }
+                    // });
                 });
             })
             .catch(err => console.error(err))

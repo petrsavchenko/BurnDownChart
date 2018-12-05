@@ -52,14 +52,13 @@ router.get('/settings', (req, res, next) => {
                                 "PageNum" : 0,
                                 "RecordsPerPage" : 1000,
                                 "SearchFilters" : [],
-                                // "DataGridName":"Defect"
+                                "DataGridName":"Defect"
                             })
                             .then(result => {
                                 const data = result.data.Data;
                                 
                                 Statistic.find({releaseId: selectedRelease.Id})
                                     .then(stats => {
-                                        debugger;
                                         response.chartData = defectsManager.getBurnDownChartData(data.ResultSet, stats,
                                             startDate, endDate);
                                         res.status(200).send(response);

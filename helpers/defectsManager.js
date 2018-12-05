@@ -6,7 +6,7 @@ class DefectsManager {
         idealBurnData.push(estimatedItemsTotal);
         while (estimatedItemsTotal >= average){
             estimatedItemsTotal -= average;
-            idealBurnData.push(estimatedItemsTotal);
+            idealBurnData.push(estimatedItemsTotal.toFixed(2));
         }
         return idealBurnData;
     }  
@@ -45,7 +45,7 @@ class DefectsManager {
     }
 
     getWorkLeft(defects) {
-        debugger
+        
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
         const endStatuses = ["Verified", "Approved for RT", "Ready RT", "Ready Release", "DeployedToProd"];
 
