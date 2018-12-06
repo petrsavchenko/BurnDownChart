@@ -80,5 +80,11 @@ db.once('open', () => {
   // console.log(`Now is ${new Date().toString()}`);
   // statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
+  
+  // ping itself to awake
+  const http = require("http");
+  setInterval(function() {
+      http.get("https://plutorachart.herokuapp.com");
+  }, 300000); // every 5 minutes (300000)
 })
 
