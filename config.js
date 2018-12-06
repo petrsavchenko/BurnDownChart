@@ -5,6 +5,7 @@ module.exports = {
     version: '0.0.0.1',
     env: process.env.NODE_ENV || 'development',
     port: process.env.PORT || 3001,
+    prodUrl: 'https://plutorachart.herokuapp.com',
     external: {
         domain: 'home',
         getRelasesUrl: 'https://home.plutoratest.com/api/suggestion/suggest',

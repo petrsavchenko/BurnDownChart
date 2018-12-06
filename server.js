@@ -77,14 +77,14 @@ db.once('open', () => {
     console.log(`Schedule Job happend. Date is ${new Date().toString()}`)
   }); 
 
-  // console.log(`Now is ${new Date().toString()}`);
   // statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
   
   // ping itself to awake
-  const http = require("http");
-  setInterval(function() {
-      http.get("https://plutorachart.herokuapp.com");
-  }, 300000); // every 5 minutes (300000)
+  setInterval(() => {
+    axios.get(config.prodUrl)
+    .then(res => console.log('ping was successful'))
+    .catch(err => console.log('ping was successful'));
+  }, 600000); // every 10 minutes (600000)
 })
 
