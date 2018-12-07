@@ -70,9 +70,10 @@ db.once('open', () => {
 
   // const jobRunTime = { hour: 23, minute: 30 };
   // 5pm Au 
-  //const jobRunTime = { hour: 11, minute: 0 };
+  // '* * 1 * *' every one hour
+  const jobRunTime = { hour: 12, minute: 0 };
 
-  const statsSaveJob = schedule.scheduleJob('* * 1 * *', function(){
+  const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
     statsManager.saveStatistics();
     console.log(`Schedule Job happend. Date is ${new Date().toString()}`)
   }); 
