@@ -25,16 +25,22 @@ app.use(cors());
 
 app.use(morgan(`API Request (port ${port}): :method :url :status :response-time ms - :res[content-length]`));
 
-axios.post(config.external.getAuthUrl, {
-  "Domain": config.external.domain,
-  "RefreshToken": config.external.refresh_token
-})
-.then(res => {
-  axios.defaults.headers.common = {
-    "authorization": `Bearer ${res.data.access_token}`
-  }
-})
-.catch(err => {console.error(err)});
+axios.defaults.headers.common = {
+  "authorization": `Bearer ${config.external.access_token}`
+}
+
+// axios.post(config.external.getAuthUrl, {
+//   "Domain": config.external.domain,
+//   "RefreshToken": config.external.refresh_token
+// })
+// .then(res => {
+//   axios.defaults.headers.common = {
+//     // "authorization": `Bearer ${res.data.access_token}`
+//     "authorization": `Bearer ${res.data.access_token}`
+//   }
+//   console.log(res.data.access_token);
+// })
+// .catch(err => {console.error(err)});
 app.use(express.static(path.join(__dirname, 'client')));
 
 /**
@@ -78,14 +84,14 @@ db.once('open', () => {
     console.log(`Schedule Job happend. Date is ${new Date().toString()}`)
   }); 
 
-  // statsManager.saveStatistics();
+  statsManager.saveStatistics();
   app.listen(port, () => console.log(`Server is listening on port ${port}`));
   
   // ping itself to awake
-  setInterval(() => {
-    axios.get(config.prodUrl)
-    .then(res => console.log('ping was successful'))
-    .catch(err => console.log('ping was successful'));
-  }, 600000); // every 10 minutes (600000)
+  // setInterval(() => {
+  //   axios.get(config.prodUrl)
+  //   .then(res => console.log('ping was successful'))
+  //   .catch(err => console.log('ping was successful'));
+  // }, 600000); // every 10 minutes (600000)
 })
 

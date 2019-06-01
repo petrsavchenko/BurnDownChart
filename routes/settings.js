@@ -21,7 +21,7 @@ router.get('/settings', (req, res, next) => {
     {
         "PageNum": 0,
         "RecordsPerPage": 1000,
-        "Text": "tents",
+        "Text": "releaseplus",
         "SuggestionType": "Release",
         "IncludeChildren": false
     })
