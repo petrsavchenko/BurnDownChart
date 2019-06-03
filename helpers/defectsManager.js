@@ -8,16 +8,30 @@ class DefectsManager {
 
     getDiffDays(startDate, endDate) {
 
-        const oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
-        const diffDays = Math.round(Math.abs((startDate.getTime() - endDate.getTime())/(oneDay)));
+        const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+        const diffDays = Math.round(Math.abs((startDate.getTime() - endDate.getTime()) / (oneDay)));
         return diffDays;
+    }
+
+    isWeekend(date) {
+        return date.getDay() == 6 || date.getDay() == 0;
+    }
+
+    getWeekendsCount(startDate, endDate) {
+        let weekendsCount = 0;
+        for (let date = new Date(startDate.getTime()); date <= endDate; date.setDate(date.getDate() + 1)) {
+            if (this.isWeekend(date)) {
+                weekendsCount += 1;
+            }
+        }
+        return weekendsCount;
     }
 
     getIdealBurnData(average, estimatedItemsTotal) {
 
         const idealBurnData = [];
         idealBurnData.push(estimatedItemsTotal);
-        while (estimatedItemsTotal >= average){
+        while (estimatedItemsTotal >= average) {
             estimatedItemsTotal -= average;
             idealBurnData.push(this.round(estimatedItemsTotal, 2));
         }
@@ -25,15 +39,16 @@ class DefectsManager {
             idealBurnData.push(0);
         }
         return idealBurnData;
-    }  
+    }
 
     getItemsSnapshot(defects, startDate, endDate) {
 
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
-        const average = estimatedItemsTotal/this.getDiffDays(startDate, endDate);
-        const idealBurnData = this.getIdealBurnData(average, estimatedItemsTotal);    
+        const average = this.round(estimatedItemsTotal / this.getDiffDays(startDate, endDate), 2);
+        const weekendCount = this.getWeekendsCount(startDate, endDate);
+        const idealBurnData = this.getIdealBurnData(average, estimatedItemsTotal);
         const workLeft = this.getWorkLeft(defects);
-  
+
         return {
             workLeft,
             idealBurnData,
@@ -54,23 +69,23 @@ class DefectsManager {
     }
 
     getWorkLeft(defects) {
-        
+
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
         const endStatuses = ["Verified", "Approved for RT", "Ready RT", "Ready Release", "DeployedToProd"];
 
         const doneItems = defects
-            .filter(item => item.Status && endStatuses.includes(item.Status.Value) &&  
+            .filter(item => item.Status && endStatuses.includes(item.Status.Value) &&
                 parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
             .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
 
         const doneItemsTotal = doneItems
-            .reduce((sum, item) => sum + item, 0);    
+            .reduce((sum, item) => sum + item, 0);
 
         const workLeft = estimatedItemsTotal - doneItemsTotal;
         return workLeft;
     }
 
-    getBurnDownChartData (defects, stats, startDate, endDate) {
+    getBurnDownChartData(defects, stats, startDate, endDate) {
 
         const defectsSnapshot = this.getItemsSnapshot(defects, startDate, endDate);
         const actualBurnData = [];
@@ -80,15 +95,15 @@ class DefectsManager {
             const dateKey = date.toISOString().split('T')[0];
             const todayKey = new Date().toISOString().split('T')[0];
             const currentStat = stats.find(item => { return item.date === dateKey });
-            
+
             if (dateKey === todayKey) {
                 // use more up to date data
                 actualBurnData.push(defectsSnapshot.workLeft);
             } else {
-                actualBurnData.push(currentStat? currentStat.workLeft: null);
+                actualBurnData.push(currentStat ? currentStat.workLeft : null);
             }
 
-            days.push(`${date.getDate()}/${date.getMonth()+1}`);
+            days.push(`${date.getDate()}/${date.getMonth() + 1}`);
         }
         return {
             days,
