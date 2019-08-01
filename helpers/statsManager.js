@@ -3,7 +3,7 @@ const axios = require('axios');
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
 
-const defectsManager = require('./defectsManager');
+const timeTrackingManager = require('./timeTrackingManager');
 
 /**
  * Config
@@ -45,7 +45,7 @@ class StatsManager {
                 .then(result => {
                     const data = result.data.Data;
 
-                    const workLeft = defectsManager.getWorkLeft(data.ResultSet);
+                    const workLeft = timeTrackingManager.getWorkLeft(data.ResultSet);
 
                     const today = new Date().toISOString().split('T')[0];
 

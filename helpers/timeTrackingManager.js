@@ -64,8 +64,7 @@ class TimeTrackingManager {
 
         // convertation from w1d3h4 format to hours
         const estimatedItems = defects
-            .filter(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
-            .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
+            .map(item => item.EstimatedMinutes);
 
         const estimatedItemsTotal = estimatedItems
             .reduce((sum, item) => sum + item, 0);
@@ -76,14 +75,11 @@ class TimeTrackingManager {
     // diff
     getWorkLeft(defects) {
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
-        const endStatuses = ["Verified", "Approved for RT", "Ready RT", "Ready Release", "DeployedToProd"];
 
-        const doneItems = defects
-            .filter(item => item.Status && endStatuses.includes(item.Status.Value) &&
-                parseInt(item.Fields.find(field => field.Name === "Story Points").Value))
-            .map(item => parseInt(item.Fields.find(field => field.Name === "Story Points").Value));
+        const burnedMinutes = defects
+            .filter(item => item.EstimatedMinutes);
 
-        const doneItemsTotal = doneItems
+        const doneItemsTotal = burnedMinutes
             .reduce((sum, item) => sum + item, 0);
 
         const workLeft = estimatedItemsTotal - doneItemsTotal;
@@ -117,4 +113,4 @@ class TimeTrackingManager {
     }
 }
 
-module.exports = new StorypointsManager();
+module.exports = new TimeTrackingManager();
