@@ -77,13 +77,13 @@ class TimeTrackingManager {
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
 
         const burnedMinutes = defects
-            .filter(item => item.EstimatedMinutes);
+            .map(item => item.SpentMinutes);
 
         const doneItemsTotal = burnedMinutes
             .reduce((sum, item) => sum + item, 0);
 
-        const workLeft = estimatedItemsTotal - doneItemsTotal;
-        return workLeft;
+        const timeLeft = estimatedItemsTotal - doneItemsTotal;
+        return timeLeft;
     }
 
     getBurnDownChartData(defects, stats, startDate, endDate) {
@@ -100,7 +100,7 @@ class TimeTrackingManager {
                 // use more up to date data
                 actualBurnData.push(defectsSnapshot.workLeft);
             } else {
-                actualBurnData.push(currentStat ? currentStat.workLeft : null);
+                actualBurnData.push(currentStat ? currentStat.timeLeft : null);
             }
 
             days.push(`${date.getDate()}/${date.getMonth() + 1}`);

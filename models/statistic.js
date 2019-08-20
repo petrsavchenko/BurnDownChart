@@ -18,6 +18,12 @@ var StatisticSchema = new Schema({
         required: true
     },
 
+    timeLeft: {
+        type: Number, 
+        min: 0, 
+        required: false
+    },
+
     // Selected Release in PT 
     releaseId: {
         type: String, 
