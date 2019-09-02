@@ -18,6 +18,7 @@ const config = require('../config');
 router.get('/defects/:releaseId', (req, res, next) => {
 
     const releaseId = req.params.releaseId;
+    const chartType = req.query.chartType;
     const startDate = new Date(req.query.startDate);
     const endDate = new Date(req.query.endDate);
 
@@ -27,7 +28,7 @@ router.get('/defects/:releaseId', (req, res, next) => {
         res.status(422);
     }
 
-    const setting = { releaseId, startDate, endDate };
+    const setting = { releaseId, chartType, startDate, endDate };
 
     Setting.findOneAndUpdate({}, setting, { upsert: true }, (err, res) => {
         if (err) {
@@ -51,7 +52,7 @@ router.get('/defects/:releaseId', (req, res, next) => {
             .then(stats => {
                 const chartData = defectsManager.getBurnDownChartData(data.ResultSet, stats,
                     startDate, endDate);
-                res.status(200).send(chartData);
+                res.status(200).send({...chartData, chartType});
             })
             .catch(err => console.error(err));
     })

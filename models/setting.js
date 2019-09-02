@@ -21,6 +21,12 @@ var SettingSchema = new Schema({
     releaseId: {
         type: String, 
         required: true
+    },
+
+    // Select type of burndown: Storypoints based or remaining Time estimate
+    chartType: {
+        type: String,
+        enum: ['Storypoints', 'Time']
     }
 });
 

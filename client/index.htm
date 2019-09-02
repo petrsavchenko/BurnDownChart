@@ -6,12 +6,15 @@
     <body>
         <div id="burndown"></div>
         <footer class="fields">
-            <label for="releases">Releases:</label>
-            <select id="releases" name="releases">
+            <label>Chart Type</label>
+            <!-- ChartTypes -->
+            <select id='chart-type'>
+                <option value="Storypoints">Storypoints</option>
+                <option value="Time" selected>Remaining Time</option>
             </select>
-            
+            <label for="releases">Releases:</label>
+            <select id="releases" name="releases"></select>                      
             <label for="startDate">Sprint start date:</label>
-            
             <input type="date" id="startDate" name="startDate">
             <label for="endDate">Sprint end date:</label>
             <input type="date" id="endDate" name="endDate">
