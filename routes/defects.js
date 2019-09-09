@@ -5,7 +5,9 @@ const router = express.Router();
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
 
+const statsManager = require('../helpers/statsManager');
 const timeTrackingManager = require('../helpers/timeTrackingManager');
+const storypointsManager = require('../helpers/storypointsManager');
 
 /**
  * Config
@@ -16,6 +18,7 @@ const config = require('../config');
  * Get
  */
 router.get('/defects/:releaseId', (req, res, next) => {
+    statsManager.saveStatistics();
 
     const releaseId = req.params.releaseId;
     const chartType = req.query.chartType;
@@ -50,8 +53,9 @@ router.get('/defects/:releaseId', (req, res, next) => {
         
         Statistic.find({ releaseId })
             .then(stats => {
-                const chartData = timeTrackingManager.getBurnDownChartData(data.ResultSet, stats,
-                    startDate, endDate);
+                const chartData = setting.chartType === 'Time' ? 
+                    timeTrackingManager.getBurnDownChartData(data.ResultSet, stats, startDate, endDate) :
+                    storypointsManager.getBurnDownChartData(data.ResultSet, stats, startDate, endDate);
                 res.status(200).send({...chartData, chartType});
             })
             .catch(err => console.error(err));

@@ -4,8 +4,10 @@ const router = express.Router();
 
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
-const timeTrackingManager = require('../helpers/timeTrackingManager');
 
+const statsManager = require('../helpers/statsManager');
+const timeTrackingManager = require('../helpers/timeTrackingManager');
+const storypointsManager = require('../helpers/storypointsManager');
 
 /**
  * Config
@@ -16,6 +18,7 @@ const config = require('../config');
  * Get
  */
 router.get('/settings', (req, res, next) => {
+    statsManager.saveStatistics();
 
     axios.post(config.external.getRelasesUrl, 
     {
@@ -33,13 +36,15 @@ router.get('/settings', (req, res, next) => {
                     console.log("settings do not exist");
                     res.send(200, { releases });
                 } else {
+                    const chartType = setting.chartType;
                     const startDate = setting.startDate;
                     const endDate = setting.endDate;
                     const selectedRelease = releases.find(item => item.Id === setting.releaseId);
                     const response = {
-                        releases,
+                        chartType,
                         startDate,
-                        endDate
+                        endDate,
+                        releases,
                     }
                     if (selectedRelease) {
                         selectedRelease.Selected = true;
@@ -58,8 +63,9 @@ router.get('/settings', (req, res, next) => {
                                 
                                 Statistic.find({releaseId: selectedRelease.Id})
                                     .then(stats => {
-                                        response.chartData = timeTrackingManager.getBurnDownChartData(data.ResultSet, stats,
-                                            startDate, endDate);
+                                        response.chartData = setting.chartType === 'Time' ? 
+                                            timeTrackingManager.getBurnDownChartData(data.ResultSet, stats, startDate, endDate) :
+                                            storypointsManager.getBurnDownChartData(data.ResultSet, stats, startDate, endDate);
                                         res.status(200).send(response);
                                     })
                                     .catch(err => console.error(err));
