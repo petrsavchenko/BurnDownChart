@@ -74,11 +74,11 @@ db.once('open', () => {
   app.use(require('./routes/defects'));
   app.use(require('./routes/settings'));
 
-  // const jobRunTime = { hour: 23, minute: 30 };
+  const jobRunTime = { hour: 7, minute: 0 };
   // 5pm Au 
   // '* * 1 * *' every one hour
   // const jobRunTime = { hour: 12, minute: 0 };
-  const jobRunTime = '* * 1 * *';
+  // const jobRunTime = '* * 1 * *';
 
   const statsSaveJob = schedule.scheduleJob(jobRunTime, function(){
     statsManager.saveStatistics();
