@@ -4,7 +4,7 @@ const router = express.Router();
 
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
-const defectsManager = require('../helpers/defectsManager');
+const timeTrackingManager = require('../helpers/timeTrackingManager');
 
 
 /**
@@ -58,7 +58,7 @@ router.get('/settings', (req, res, next) => {
                                 
                                 Statistic.find({releaseId: selectedRelease.Id})
                                     .then(stats => {
-                                        response.chartData = defectsManager.getBurnDownChartData(data.ResultSet, stats,
+                                        response.chartData = timeTrackingManager.getBurnDownChartData(data.ResultSet, stats,
                                             startDate, endDate);
                                         res.status(200).send(response);
                                     })

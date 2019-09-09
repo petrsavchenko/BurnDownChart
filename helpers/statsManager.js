@@ -3,7 +3,8 @@ const axios = require('axios');
 const Setting = require('../models/setting');
 const Statistic = require('../models/statistic');
 
-const defectsManager = require('./defectsManager');
+const timeTrackingManager = require('./timeTrackingManager');
+const storypointsManager = require('./storypointsManager');
 
 /**
  * Config
@@ -45,14 +46,16 @@ class StatsManager {
                 .then(result => {
                     const data = result.data.Data;
 
-                    const workLeft = defectsManager.getWorkLeft(data.ResultSet);
+                    const workLeft = storypointsManager.getWorkLeft(data.ResultSet);
+                    const timeLeft = timeTrackingManager.getWorkLeft(data.ResultSet);
 
                     const today = new Date().toISOString().split('T')[0];
 
                     const stat = {
                         releaseId,
                         date: today,
-                        workLeft
+                        workLeft,
+                        timeLeft,
                     };
 
                     Statistic.findOneAndUpdate({releaseId, date: today}, stat, { upsert: true }, (err, res) => {
