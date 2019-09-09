@@ -59,7 +59,7 @@ class TimeTrackingManager {
         }
     }
 
-    // diff
+    // get total estimated time in hours
     getEstimatedItemsTotal(defects) {
 
         // convertation from w1d3h4 format to hours
@@ -69,10 +69,10 @@ class TimeTrackingManager {
         const estimatedItemsTotal = estimatedItems
             .reduce((sum, item) => sum + item, 0);
 
-        return estimatedItemsTotal;
+        return this.round(estimatedItemsTotal/60, 1);
     }
 
-    // diff
+    // get total burned time in hours
     getWorkLeft(defects) {
         const estimatedItemsTotal = this.getEstimatedItemsTotal(defects);
 
@@ -82,7 +82,7 @@ class TimeTrackingManager {
         const doneItemsTotal = burnedMinutes
             .reduce((sum, item) => sum + item, 0);
 
-        const timeLeft = estimatedItemsTotal - doneItemsTotal;
+        const timeLeft = estimatedItemsTotal - this.round(doneItemsTotal/60, 1);
         return timeLeft;
     }
 
