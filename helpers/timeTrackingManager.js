@@ -82,7 +82,7 @@ class TimeTrackingManager {
         const doneItemsTotal = burnedMinutes
             .reduce((sum, item) => sum + item, 0);
 
-        const timeLeft = estimatedItemsTotal - this.round(doneItemsTotal/60, 1);
+        const timeLeft = this.round(estimatedItemsTotal - doneItemsTotal/60, 1);
         return timeLeft;
     }
 
